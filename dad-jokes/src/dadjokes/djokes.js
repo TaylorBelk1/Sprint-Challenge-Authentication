@@ -12,7 +12,7 @@ class DadJokes extends Component {
                 <h2>Dad Jokes</h2>
                 <ul>
                     {this.state.jokes.map(joke => (
-                        <li key={joke.id}>{joke.jokename}</li>
+                        <li key={joke.id}>{joke.joke}</li>
                     ))}
                 </ul>
             </>
@@ -21,15 +21,12 @@ class DadJokes extends Component {
     
     componentDidMount() {
         const headers = { authorization: localStorage.getItem('jwt') };
-        const endpoint = 'http://localhost:3300/api/jokes';
         axios
-        .get(endpoint, {headers})
+        .get('http://localhost:3300/api/jokes', {headers})
             .then(res => {
                 this.setState({ jokes: res.data })
             })
-            .catch(e => {
-                console.error(e);
-            })
+            .catch(err => err)
     }
 }
 

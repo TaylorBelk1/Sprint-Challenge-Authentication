@@ -3,17 +3,21 @@ import axios from 'axios';
 
 
 class Login extends Component {
-    state = {
-        username: "",
-        password: ""
+    constructor() {
+        super();
+        this.state = {
+            username: "",
+            password: ""
+        }
     }
+    
     render() {
         return(
             <>
                 <h2>Login</h2>
-                <form onSubmit={this.handleSubmit}>
+                
                     <div>
-                        <label htmlFor="username">Username: </label>
+                        <h4>Username: </h4>
                         <br />
                         <input 
                             name="username"
@@ -25,7 +29,7 @@ class Login extends Component {
                     </div>
                         <br></br>
                     <div>
-                        <label htmlFor="password">Password: </label>
+                        <h4>Password: </h4>
                         <br />
                         <input 
                             name="password"
@@ -37,24 +41,20 @@ class Login extends Component {
                     </div>
                         <br></br>
                     <div>
-                        <button>Login</button>
+                        <button onClick={this.handleSubmit}>Login</button>
                     </div>
-                </form>
             </>
         )
     }
 
     handleInputChange = e => {
-        const { name, value } = e.target;
-        this.setState({ [name]: value });
+        this.setState({ [e.target.name]: e.target.value });
     };
 
     handleSubmit = e => {
         e.preventDefault();
-        const endpoint = 'http://localhost:3300/api/register';
-
         axios
-            .post(endpoint, this.state)
+            .post('http://localhost:3300/api/login', this.state)
             .then(res => {
                 localStorage.setItem('jwt', res.data.token);
             }).catch(e => {
