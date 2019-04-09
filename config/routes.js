@@ -1,8 +1,8 @@
 const axios = require('axios');
-const jwt = require('jsonwebtoken');
-const jwtSecret = require('./secrets');
-const { authenticate, generateToken } = require('../auth/authenticate');
 const bcrypt = require('bcryptjs');
+const db = require('../database/dbConfig');
+const { authenticate, generateToken } = require('../auth/authenticate');
+
 
 module.exports = server => {
   server.post('/api/register', register);
@@ -13,56 +13,54 @@ module.exports = server => {
 function register(req, res) {
   // implement user registration		
   
-  const { username, password } = req.body;
-  const creds = { username, password };
-  
- 	const hash = bcrypt.hashSync(creds.password, 15);
-   creds.password = hash;
+  let user = req.body;
+ 	let hash = bcrypt.hashSync(user.password, 10);
+   user.password = hash;
   
  	db('users')
-		.insert(creds)
+		.insert(user)
 		.then(([id]) => {
 			const token = generateToken(id);
 			res.status(201).json({
-				message: `User account ${creds.username} created`,
+				message: `User account ${username} created`,
 				token
 			});
 		})
 		.catch(err => {
 			res.status(500).json(err);
 		});
-}
+}	
+
 
 function login(req, res) {
   // implement user login	
-  const { username, password } = req.body;	
-  const creds = { username, password };
+  let { username, password } = req.body;
 
  	db('users')
-		.where({ username: creds.username })
+		.where({ username: username })
 		.then(([user]) => {
-			if (user && bcrypt.compareSync(creds.password, user.password)) {
+			if (user && bcrypt.compareSync(password, user.password)) {
 				const token = generateToken(user);
 				res
 					.status(200)
-					.json({ message: `User ${creds.username} logged in`, token });
+					.json({ message: `User ${username} logged in`, token });
 			} else {
 				res.status(401).json({ error: 'Not authorized' });
 			}
 		})
 		.catch(err => res.status(500).json(err));
-}
+}	
 
 
 function getJokes(req, res) {
+  const requestOptions = {
+    headers: { accept: 'application/json' },
+  };
+
   axios
-    .get(
-      'https://08ad1pao69.execute-api.us-east-1.amazonaws.com/dev/random_ten'
-    )
+    .get('https://icanhazdadjoke.com/search', requestOptions)
     .then(response => {
-      res.status(200).json(response.data);
+      res.status(200).json(response.data.results);
     })
-    .catch(err => {
-      res.status(500).json({ message: 'Error Fetching Jokes', error: err });
-    });
-}
+    .catch(err => res.status(500).json(err));
+  }

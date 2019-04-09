@@ -1,8 +1,6 @@
 const jwt = require('jsonwebtoken');
-const jwtKey = require('../config/secrets')
+const jwtKey = require('../config/secrets').jwtSecret;
 
-  process.env.JWT_SECRET || 
-  'add a .env file to root of project with the JWT_SECRET variable';
 
 // quickly see what this file exports
 module.exports = {
